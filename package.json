@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test:default": "ng test --include app/app.component.spec.ts",
+    "test:ng-mocks": "ng test --include app/app.component.ngmocks.spec.ts"
   },
   "private": true,
   "dependencies": {

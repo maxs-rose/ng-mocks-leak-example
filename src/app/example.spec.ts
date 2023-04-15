@@ -1,11 +1,9 @@
 import { CurrencyPipe } from '@angular/common';
 import {
-  ChangeDetectorRef,
   Component,
   Inject,
   Injectable,
   InjectionToken,
-  LOCALE_ID,
   NgModule,
   OnDestroy,
   Pipe,
@@ -17,15 +15,9 @@ import {
   BehaviorSubject,
   Observable,
   Subject,
-  Subscription,
   fromEvent,
-  of,
   takeUntil,
 } from 'rxjs';
-
-const CURRENT_CURRENCY_SYMBOL = new InjectionToken<Observable<string>>(
-  'Current currency symbol'
-);
 
 export const WINDOW = new InjectionToken<Window>('Window', {
   factory: () => window,
@@ -35,53 +27,9 @@ export const WINDOW = new InjectionToken<Window>('Window', {
   name: 'dynamicCurrency',
   pure: false,
 })
-class DynamicCurrencyPipe implements OnDestroy, PipeTransform {
-  #latestValue: string | null = null;
-  #transformSubscription?: Subscription;
-  #previousValue?: number | string;
-
-  #detetorRef: ChangeDetectorRef | null;
-
-  constructor(
-    @Inject(LOCALE_ID) private locale: string,
-    @Inject(CURRENT_CURRENCY_SYMBOL)
-    private currentCurrencySymbol: Observable<string>,
-    private currencyPipe: CurrencyPipe,
-    ref: ChangeDetectorRef
-  ) {
-    this.#detetorRef = ref;
-  }
-
+class DynamicCurrencyPipe implements PipeTransform {
   transform(value?: number | string | null): string | null {
-    if (!this.isValue(value)) {
-      return null;
-    }
-
-    if (value !== this.#previousValue) {
-      this.#previousValue = value!;
-      this.#transformSubscription?.unsubscribe();
-      this.#transformSubscription = this.currentCurrencySymbol.subscribe(
-        (currentSymbol) => {
-          this.updateValue(value!, currentSymbol);
-        }
-      );
-    }
-
-    return this.#latestValue;
-  }
-
-  updateValue(value: number | string, symbol: string) {
-    this.#latestValue = this.currencyPipe.transform(value, this.locale, symbol);
-    this.#detetorRef?.markForCheck();
-  }
-
-  isValue(value?: number | string | null) {
-    return !(value === null || value === undefined || value === '');
-  }
-
-  ngOnDestroy() {
-    this.#transformSubscription?.unsubscribe();
-    this.#detetorRef = null;
+    return `£{value}`;
   }
 }
 
